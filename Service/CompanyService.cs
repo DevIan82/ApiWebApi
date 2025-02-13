@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Contracts;
+using Entities.Exceptions;
 using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -37,6 +38,22 @@ namespace Service
               throw;
              }
 
+        }
+        public CompanyDto GetCompany(Guid companyId, bool track)
+        {
+            try
+            {
+                var company = _repository.Company.GetCompany(companyId, track);
+                if (company is null)
+                    throw new CompanyNotFoundException(companyId);
+                var companyDto = _mapper.Map<CompanyDto>(company);
+                return companyDto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong in the {nameof(GetCompany)} service method {ex}");
+                throw;
+            }
         }
     }
 }
